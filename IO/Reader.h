@@ -6,6 +6,7 @@
 #include <string.h>
 #include <vector>
 
+#include "IO/silo.h"
 #include "IO/Mesh.h"
 #include "IO/MeshDatabase.h"
 

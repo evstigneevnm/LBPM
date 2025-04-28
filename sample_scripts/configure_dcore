@@ -1,0 +1,23 @@
+#!/bin/bash
+
+cmake -D CMAKE_C_COMPILER:PATH=/usr/local/mpi/bin/mpicc          \
+    -D CMAKE_CXX_COMPILER:PATH=/usr/local/mpi/bin/mpic++        \
+    -D CMAKE_C_FLAGS="-O3 -fPIC"         \
+    -D CMAKE_CXX_FLAGS="-O3 -fPIC "      \
+    -D CMAKE_CXX_STANDARD=14    \
+    -D USE_MPI=1 \
+    -D MPIEXEC=mpiexec                     \
+    -D CMAKE_BUILD_TYPE:STRING=Release     \
+    -D CMAKE_CUDA_ARCHITECTURES=70	\
+    -D CUDA_HOST_COMPILER="/usr/bin/gcc" \
+    -D HDF5_DIRECTORY="/opt/hdf5_all/hdf5-1.14.6" \
+    -D HDF5_LIB="/opt/hdf5_all/hdf5-1.14.6/lib/libhdf5.a"\
+    -D USE_SILO=1 \
+    -D SILO_DIRECTORY="/opt/silo_all/silo-4.11.1"	\
+    -D SILO_LIB="/opt/silo_all/silo-4.11.1/lib/libsiloh5.a"	\
+    -D USE_NETCDF=0  			\
+    -D USE_CUDA=1                        \
+    -D USE_TIMER=0			\
+    -D LDFLAGS="-lz -lsz"             \
+    ../
+
