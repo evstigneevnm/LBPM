@@ -25,8 +25,22 @@ extern "C" int ScaLBL_SetDevice(int rank){
 	//int device = local_rank % n_devices; 
 	int device = rank % n_devices; 
 	cudaSetDevice(device); 
-	if (rank < n_devices) printf("MPI rank=%i will use GPU ID %i / %i \n",rank,device,n_devices);
+	// if (rank < n_devices) 
+	printf("ScaLBL_SetDevice: MPI rank=%i will use GPU ID %i / %i \n",rank,device,n_devices);
 	return device;
+}
+
+extern "C" int ScaLBL_SetDevice_by_id(int rank, int gpu_id){
+	printf("here, rank = %i, gpu_id = %i\n", rank, gpu_id);
+	int n_devices; 
+	//int local_rank = atoi(getenv("MV2_COMM_WORLD_LOCAL_RANK"));
+	cudaGetDeviceCount(&n_devices); 
+	//int device = local_rank % n_devices; 
+	int device = rank % n_devices; 
+	cudaSetDevice(gpu_id); 
+	// if (rank < n_devices) 
+	printf("ScaLBL_SetDevice_by_id: MPI rank=%i will use GPU ID %i / %i \n",rank,gpu_id,n_devices);
+	return gpu_id;
 }
 
 extern "C" void ScaLBL_AllocateDeviceMemory(void** address, size_t size){

@@ -416,9 +416,11 @@ void SubPhase::Basic() {
         if (Dm->BoundaryCondition == 1 || Dm->BoundaryCondition == 2 ||
             Dm->BoundaryCondition == 3 || Dm->BoundaryCondition == 4) {
             // compute the pressure drop
-            double pressure_drop = (Pressure(Nx * Ny + Nx + 1) - 1.0/ 3.0);
+            double Pr = Pressure(Nx * Ny + Nx*(Ny/2) + Nx/2); 
+            double pressure_drop = (Pr - 1.0/ 3.0);
             double length = ((Nz - 2) * Dm->nprocz());
             force_mag -= pressure_drop / length;
+            printf("P = %le, pressure_drop = %le, length = %lf, force_mag = %le dir_(xyz) = (%.1lf,%.1lf,%.1lf) \n", Pr, pressure_drop, length, force_mag, dir_x, dir_y, dir_z);
         }
         if (force_mag == 0.0 && flow_magnitude == 0.0) {
             // default to z direction

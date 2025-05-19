@@ -733,6 +733,10 @@ double ScaLBL_ColorModel::Run(int returntime) {
         if (BoundaryCondition > 0 && BoundaryCondition < 5) {
             ScaLBL_Comm->Color_BC_z(dvcMap, Phi, Den, inletA, inletB);
             ScaLBL_Comm->Color_BC_Z(dvcMap, Phi, Den, outletA, outletB);
+            if (timestep % 1000 == 0)
+            {
+                printf("inletA = %lf, inletB = %lf, outletA = %lf outletB = %lf\n", inletA, inletB, outletA, outletB);
+            }
         }
         ScaLBL_Comm_Regular->SendHalo(Phi);
         ScaLBL_D3Q19_AAeven_Color(dvcMap, fq, Aq, Bq, Den, Phi, Velocity, rhoA,
@@ -750,9 +754,14 @@ double ScaLBL_ColorModel::Run(int returntime) {
             din =
                 ScaLBL_Comm->D3Q19_Flux_BC_z(NeighborList, fq, flux, timestep);
             ScaLBL_Comm->D3Q19_Pressure_BC_Z(NeighborList, fq, dout, timestep);
+
         } else if (BoundaryCondition == 5) {
             ScaLBL_Comm->D3Q19_Reflection_BC_z(fq);
             ScaLBL_Comm->D3Q19_Reflection_BC_Z(fq);
+        }
+        if (timestep % 1000 == 0)
+        {
+            printf("din = %le, dout = %le, Fx = %le, Fy = %le, Fz = %le\n", din, dout, Fx, Fy, Fz);
         }
         ScaLBL_D3Q19_AAeven_Color(dvcMap, fq, Aq, Bq, Den, Phi, Velocity, rhoA,
                                   rhoB, tauA, tauB, alpha, beta, Fx, Fy, Fz, Nx,
@@ -1000,6 +1009,50 @@ double ScaLBL_ColorModel::Run(int returntime) {
                             pAB_connected, viscous_pressure_drop, Ca, Mobility);
                     fprintf(kr_log_file, "%.5g\n", eff_pres);
                     fclose(kr_log_file);
+
+///                 added tensor properties output
+                    {
+                        double flow_rate_Ax = volA * vA_x;
+                        double flow_rate_Bx = volB * vB_x;
+                        double flow_rate_Ay = volA * vA_y;
+                        double flow_rate_By = volB * vB_y;
+                        double flow_rate_Az = volA * vA_z;
+                        double flow_rate_Bz = volB * vB_z;
+                        
+                        double kAeffx = h * h * muA * (flow_rate_Ax) / (force_mag);
+                        double kBeffx = h * h * muB * (flow_rate_Bx) / (force_mag); 
+                        double kAeffy = h * h * muA * (flow_rate_Ay) / (force_mag);
+                        double kBeffy = h * h * muB * (flow_rate_By) / (force_mag); 
+                        double kAeffz = h * h * muA * (flow_rate_Az) / (force_mag);
+                        double kBeffz = h * h * muB * (flow_rate_Bz) / (force_mag); 
+                        double pAB = (pA - pB) / (h * 6.0 * alpha);
+                        
+                        bool WriteHeader = false;
+                        FILE *kr_log_file = fopen("relperm_tensor.csv", "r");
+                        if (kr_log_file != NULL)
+                        {
+                            fclose(kr_log_file);
+                        }
+                        else
+                        {
+                            WriteHeader = true;
+                        }
+                        kr_log_file = fopen("relperm_tensor.csv", "a");
+                        if (WriteHeader) {
+                            fprintf(kr_log_file, "timesteps sat.water ");
+                            fprintf(kr_log_file, "eff.perm.oil.upper.bound_x eff.perm.water.upper.bound_x ");
+                            fprintf(kr_log_file, "eff.perm.oil.upper.bound_y eff.perm.water.upper.bound_y ");
+                            fprintf(kr_log_file, "eff.perm.oil.upper.bound_z eff.perm.water.upper.bound_z ");                                
+                            fprintf(kr_log_file, "cap.pressure Ca muA muB\n");
+                        }
+                        fprintf(kr_log_file, "%i %.5g ", CURRENT_TIMESTEP, current_saturation);
+                        fprintf(kr_log_file, "%.5g %.5g ", kAeffx, kBeffx);
+                        fprintf(kr_log_file, "%.5g %.5g ", kAeffy, kBeffy);
+                        fprintf(kr_log_file, "%.5g %.5g ", kAeffz, kBeffz);
+                        fprintf(kr_log_file, "%.5g %.5g %.5g %.5g\n", pAB, muA, muB, Ca);
+                        fclose(kr_log_file);
+                    }
+///
 
                     if (WettingConvention == "SCAL"){
                     	WriteHeader = false;

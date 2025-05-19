@@ -45,7 +45,17 @@ int main( int argc, char **argv )
 				printf("**** LEGACY MODE ENABLED *************\n");
 		}
 		// Initialize compute device
-		int device = ScaLBL_SetDevice( rank );
+		std::cout << "argc = " << argc << std::endl;
+		int device = 0;
+		if (argc == 3)
+		{
+			int gpu_id = std::stoi(argv[2]);
+			device = ScaLBL_SetDevice_by_id( rank, gpu_id );
+		}
+		else
+		{
+			device = ScaLBL_SetDevice( rank );
+		}
 		NULL_USE( device );
 		ScaLBL_DeviceBarrier();
 		comm.barrier();

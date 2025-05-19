@@ -34,6 +34,13 @@
 extern "C" int ScaLBL_SetDevice(int rank);
 
 /**
+* \brief Set compute device by gpu_id
+* @param rank      rank of MPI process 
+* @param gpu_id    gpu id
+*/
+extern "C" int ScaLBL_SetDevice_by_id(int rank, int gpu_id);
+
+/**
 * \brief Allocate memory 
 * @param address      memory address
 * @param size         size in bytes
