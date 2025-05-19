@@ -416,11 +416,28 @@ void SubPhase::Basic() {
         if (Dm->BoundaryCondition == 1 || Dm->BoundaryCondition == 2 ||
             Dm->BoundaryCondition == 3 || Dm->BoundaryCondition == 4) {
             // compute the pressure drop
-            double Pr = Pressure(Nx * Ny + Nx*(Ny/2) + Nx/2); 
+            // the stupidets idea ever, simply sets a point in the domain.
+            int z_p = 1;
+            int y_p = 1;
+            int x_p = 1;
+            for(int jj=0;jj<Nx;jj++)
+            {
+                for(int kk=0;kk<Ny;kk++)
+                {
+                    if( Pressure(Nx * Ny*(z_p) + Nx*(kk) + jj) > 0.0 ) //PhaseID(Nx * Ny*(z_p) + Nx*(kk) + jj)>0 dosn't work ?!?
+                    {
+                        y_p = kk;
+                        x_p = jj;
+                        break;
+
+                    }
+                }
+            }
+            double Pr = Pressure(Nx * Ny*(z_p) + Nx*(y_p) + x_p);
             double pressure_drop = (Pr - 1.0/ 3.0);
             double length = ((Nz - 2) * Dm->nprocz());
             force_mag -= pressure_drop / length;
-            printf("P = %le, pressure_drop = %le, length = %lf, force_mag = %le dir_(xyz) = (%.1lf,%.1lf,%.1lf) \n", Pr, pressure_drop, length, force_mag, dir_x, dir_y, dir_z);
+            printf("(x_p, y_p) = (%i,%i), P = %le, pressure_drop = %le, length = %lf, force_mag = %le dir_(xyz) = (%.1lf,%.1lf,%.1lf) \n", x_p, y_p, Pr, pressure_drop, length, force_mag, dir_x, dir_y, dir_z);
         }
         if (force_mag == 0.0 && flow_magnitude == 0.0) {
             // default to z direction
