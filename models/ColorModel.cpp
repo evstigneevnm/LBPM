@@ -773,7 +773,7 @@ double ScaLBL_ColorModel::Run(int returntime) {
             Den); // allow initial ramp-up to get closer to steady state
 
         CURRENT_TIMESTEP += 2;
-        if (CURRENT_TIMESTEP > MIN_STEADY_TIMESTEPS && BoundaryCondition == 0) {
+        if (CURRENT_TIMESTEP > MIN_STEADY_TIMESTEPS ){ //&& BoundaryCondition == 0) {
             analysis.finish();
 
             double volB = Averages->gwb.V;
@@ -949,7 +949,7 @@ double ScaLBL_ColorModel::Run(int returntime) {
 
 		    /* not counting films */
                     double krnf_low = (1.0 - current_saturation) * krnf;
-		    double krwf_low = current_saturation * krwf;
+		            double krwf_low = current_saturation * krwf;
 
                     // Saturation normalized effective permeability to account for decoupled phases and
                     // effective porosity.
@@ -977,7 +977,7 @@ double ScaLBL_ColorModel::Run(int returntime) {
                                              "eff.perm.water.upper.bound ");
                         fprintf(kr_log_file, "eff.perm.oil.film "
                                              "eff.perm.water.film ");
-			fprintf(kr_log_file, "eff.perm.oil.film.lower.bound "
+			            fprintf(kr_log_file, "eff.perm.oil.film.lower.bound "
                                              "eff.perm.water.film.lower.bound ");
                         fprintf(kr_log_file, "eff.perm.oil.lower.bound "
                                              "eff.perm.water.lower.bound ");
@@ -1072,7 +1072,7 @@ double ScaLBL_ColorModel::Run(int returntime) {
 					"eff.perm.water.lower.bound ");
                     		fprintf(scal_log_file, "eff.perm.oil.disconnected "
 					"eff.perm.water.disconnected ");
-				fprintf(scal_log_file,
+				            fprintf(scal_log_file,
 					"eff.perm.oil.film.lower.bound "
 					"eff.perm.water.film.lower.bound ");
                     		fprintf(scal_log_file,
@@ -1125,6 +1125,7 @@ double ScaLBL_ColorModel::Run(int returntime) {
                     }
                 }
             }
+            Ca_previous = Ca;
         }
     }
     analysis.finish();

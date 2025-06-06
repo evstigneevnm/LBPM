@@ -255,17 +255,30 @@ void ScaLBL_MRTModel::Run() {
 
     if (rank == 0) {
         bool WriteHeader = false;
+        bool write_header_tensor = false;
+
         FILE *log_file = fopen("Permeability.csv", "r");
         if (log_file != NULL)
             fclose(log_file);
         else
             WriteHeader = true;
 
+        log_file = fopen("Permeability_tensor.csv", "r");
+        if (log_file != NULL)
+            fclose(log_file);
+        else
+            write_header_tensor = true;        
+
         if (WriteHeader) {
             log_file = fopen("Permeability.csv", "a+");
             fprintf(log_file, "time Fx Fy Fz mu Vs As Js Xs vx vy vz absperm\n");
             fclose(log_file);
         }
+        if (write_header_tensor) {
+            log_file = fopen("Permeability_tensor.csv", "a+");
+            fprintf(log_file, "time Fx Fy Fz mu Vs As Js Xs vx vy vz absperm_x absperm_y absperm_z\n");
+            fclose(log_file);
+        }        
     }
 
     //.......create and start timer............
@@ -373,6 +386,9 @@ void ScaLBL_MRTModel::Run() {
                 force_mag = 1.0;
             }
             double flow_rate = (vax * dir_x + vay * dir_y + vaz * dir_z);
+            double flow_rate_x = vax;
+            double flow_rate_y = vay;
+            double flow_rate_z = vaz;
 
             error = fabs(flow_rate - flow_rate_previous) / fabs(flow_rate);
             flow_rate_previous = flow_rate;
@@ -391,12 +407,17 @@ void ScaLBL_MRTModel::Run() {
             Xs = Dm->Comm.sumReduce(Xs);
 
             double h = Dm->voxel_length;
-            double absperm =
-                h * h * mu * Mask->Porosity() * Mask->Porosity() * flow_rate / force_mag;
-	    absperm *= 1013.0; // Convert to mDarcy
+            const double convert_const = 1013.250273830886;
+            double geom_factor = h * h * mu * Mask->Porosity() * Mask->Porosity();
+            double absperm = geom_factor*flow_rate / force_mag;
+	        absperm *= convert_const; // Convert to mDarcy
+
+            double absperm_x = geom_factor*flow_rate_x/force_mag*convert_const;
+            double absperm_y = geom_factor*flow_rate_y/force_mag*convert_const;
+            double absperm_z = geom_factor*flow_rate_z/force_mag*convert_const;
 
             if (rank == 0) {
-                printf("     %f\n", absperm);
+                printf(" absperm: %f\n", absperm);
                 FILE *log_file = fopen("Permeability.csv", "a");
                 fprintf(log_file,
                         "%i %.8g %.8g %.8g %.8g %.8g %.8g %.8g %.8g %.8g %.8g "
@@ -404,6 +425,17 @@ void ScaLBL_MRTModel::Run() {
                         timestep, Fx, Fy, Fz, mu, h * h * h * Vs, h * h * As,
                         h * Hs, Xs, vax, vay, vaz, absperm);
                 fclose(log_file);
+
+                {
+                    printf(" absperm_vec: %le %le %le \n", absperm_x, absperm_y, absperm_z);
+                    FILE *log_file = fopen("Permeability_tensor.csv", "a");
+                    fprintf(log_file,
+                            "%i %.8g %.8g %.8g %.8g %.8g %.8g %.8g %.8g %.8g %.8g "
+                            "%.8g %.8g %.8g %.8g\n",
+                            timestep, Fx, Fy, Fz, mu, h * h * h * Vs, h * h * As,
+                            h * Hs, Xs, vax, vay, vaz, absperm_x, absperm_y, absperm_z);
+                    fclose(log_file);                
+                }
             }
         }
     }
