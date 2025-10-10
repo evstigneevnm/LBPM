@@ -98,6 +98,7 @@ public:
 
     //...........................................................................
     int Nx, Ny, Nz;
+    double voxel_length;
     IntArray PhaseID;      // Phase ID array (solid=0, non-wetting=1, wetting=2)
     BlobIDArray Label_WP;  // Wetting phase label
     BlobIDArray Label_NWP; // Non-wetting phase label index (0:nblobs-1)

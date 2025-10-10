@@ -21,6 +21,7 @@ SubPhase::SubPhase(std::shared_ptr<Domain> dm) : Dm(dm) {
     Nx = dm->Nx;
     Ny = dm->Ny;
     Nz = dm->Nz;
+    voxel_length = dm->voxel_length;
     Volume = (Nx - 2) * (Ny - 2) * (Nz - 2) * Dm->nprocx() * Dm->nprocy() *
              Dm->nprocz() * 1.0;
 
@@ -127,7 +128,7 @@ SubPhase::SubPhase(std::shared_ptr<Domain> dm) : Dm(dm) {
         if (WriteHeader) {
             // If timelog is empty, write a short header to list the averages
             fprintf(TIMELOG,
-                    "sw krw krn krwf krnf vw vn force pw pn wet peff\n");
+                    "sw krw krn krwf krnf vw vn force pw pn wet peff pc pc_div_voxlen\n");
         }
     }
 }
@@ -475,10 +476,10 @@ void SubPhase::Basic() {
         double eff_pressure = 1.0 / (krn + krw); // effective pressure drop
 
         fprintf(TIMELOG,
-                "%.8g %.8g %.8g %.8g %.8g %.8g %.8g %.8g %.8g %.8g %.8g %.8g\n",
+                "%.8g %.8g %.8g %.8g %.8g %.8g %.8g %.8g %.8g %.8g %.8g %.8g %.8g %.8g\n",
                 saturation, krw, krn, krwf, krnf, h * water_flow_rate,
                 h * not_water_flow_rate, force_mag, gwb.p, gnb.p,
-                total_wetting_interaction_global, eff_pressure);
+                total_wetting_interaction_global, eff_pressure, gnb.p-gwb.p, (gnb.p-gwb.p)/(voxel_length*1.0e-6 ) );
         fflush(TIMELOG);
     }
     if (err == true) {
