@@ -408,7 +408,8 @@ void ScaLBL_MRTModel::Run() {
 
             double h = Dm->voxel_length;
             const double convert_const = 1013.250273830886;
-            double geom_factor = h * h * mu * Mask->Porosity() * Mask->Porosity();
+            // double geom_factor = h * h * mu * Mask->Porosity() * Mask->Porosity();
+            double geom_factor = 0.4* h * h * Mask->Porosity() * Mask->Porosity(); //stupid factor?!
             double absperm = geom_factor*flow_rate / force_mag;
 	        absperm *= convert_const; // Convert to mDarcy
 
@@ -427,7 +428,7 @@ void ScaLBL_MRTModel::Run() {
                 fclose(log_file);
 
                 {
-                    printf(" absperm_vec: %le %le %le \n", absperm_x, absperm_y, absperm_z);
+                    printf(" absperm_vec: %le,%le,%le \n", absperm_x, absperm_y, absperm_z);
                     FILE *log_file = fopen("Permeability_tensor.csv", "a");
                     fprintf(log_file,
                             "%i %.8g %.8g %.8g %.8g %.8g %.8g %.8g %.8g %.8g %.8g "

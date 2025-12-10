@@ -564,9 +564,11 @@ void Domain::Decomp(const std::string &Filename) {
     }
     if (database->keyExists("InletLayersPhase")) {
         inlet_layers_phase = database->getScalar<int>("InletLayersPhase");
+        printf("inlet_layers_phase = %i\n", inlet_layers_phase);
     }
     if (database->keyExists("OutletLayersPhase")) {
         outlet_layers_phase = database->getScalar<int>("OutletLayersPhase");
+        printf("outlet_layers_phase = %i\n", outlet_layers_phase);
     }
     auto ReadValues = database->getVector<int>("ReadValues");
     auto WriteValues = database->getVector<int>("WriteValues");

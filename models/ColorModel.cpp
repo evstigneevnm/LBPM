@@ -127,6 +127,7 @@ void ScaLBL_ColorModel::ReadParams(string filename) {
         if (inlet_layers_phase == 2) {
             inletA = 0.0;
             inletB = 1.0;
+            printf("inlet_layers_phase = %i, inletA = %f, inletB = %i\n",inlet_layers_phase, inletA, inletB);
         }
     }
     if (domain_db->keyExists("OutletLayersPhase")) {
@@ -135,6 +136,7 @@ void ScaLBL_ColorModel::ReadParams(string filename) {
         if (outlet_layers_phase == 1) {
             inletA = 1.0;
             inletB = 0.0;
+            printf("outlet_layers_phase = %i, inletA = %f, inletB = %i\n",outlet_layers_phase, inletA, inletB);
         }
     }
 
